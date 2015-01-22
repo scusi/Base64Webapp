@@ -1,4 +1,5 @@
-//
+// install: go install Base64StdinEncode.go
+// usage:   cat infile | Base64StdinEncode -type=URL > outfile
 package main
 
 import("encoding/base64")
