@@ -4,11 +4,38 @@ import("net/http")
 import("log")
 import("bytes")
 import("encoding/base64")
+import("html/template")
 import("io")
+import("io/ioutil")
+
+type Result struct {
+	Data	string
+	Type	string
+	Action	string
+}
+
+const formsrc = `<html>
+	<head>
+	 <title>Base64 Encoding/Decoding</title>
+	</head>
+	<body>
+	 <h1>Base64 Encoding/Decoding</h1>
+	 <form action="/do" method="POST">
+	  <textarea name="c" rows="20" cols="80">{{if .}}{{.Data}}{{end}}</textarea><br/>
+	  Type: <input type="radio" name="type" value="Stdandard" checked> Standard | <input type="radio" name="type" value="URL"> URL 
+	  <input type="submit" name="action" value="encode">
+	  <input type="submit" name="action" value="decode">
+	  <input type="reset" value="reset">
+	 </form>
+	</body>
+</html>`
+
+var tmpl = template.Must(template.New("form").Parse(formsrc))
 
 func check(err error, w http.ResponseWriter) {
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		log.Println(err)
 	}
 }
 
@@ -25,9 +52,8 @@ func do(w http.ResponseWriter, r *http.Request) {
 			    result = base64.StdEncoding.EncodeToString(buf.Bytes())
 				log.Println("Std Encoding choosen")
 			}
-			i, err := w.Write([]byte(result))
-			check(err, w)
-			log.Printf("%d bytes written to client\n", i)
+			res := Result{result, r.FormValue("type"), action}
+			tmpl.Execute(w, res)
 		case "decode":
 			rdr := bytes.NewReader([]byte(r.FormValue("c")))
 			var result io.Reader
@@ -38,34 +64,20 @@ func do(w http.ResponseWriter, r *http.Request) {
 				result = base64.NewDecoder(base64.StdEncoding, rdr)
 				log.Println("Std Decoding choosen")
 			}
-			i, err := io.Copy(w, result)
-			check(err, w)
-			log.Printf("%d bytes written to client\n", i)
+			resb, err := ioutil.ReadAll(result)
+			if err != nil {
+				http.Error(w, err.Error(), 500)
+				log.Println(err)
+				break
+			}
+			res := Result{string(resb), r.FormValue("type"), action}
+			tmpl.Execute(w, res)
+		default:
+			tmpl.Execute(w, "")
 	}
 }
 
-func form(w http.ResponseWriter, r *http.Request) {
-	f := `<html>
-	<head>
-	 <title>Base64 Encoding/Decoding</title>
-	</head>
-	<body>
-	 <h1>Base64 Encoding/Decoding</h1>
-	 <form action="/do" method="POST">
-	  <textarea name="c" rows="20" cols="80"></textarea><br/>
-	  Type: <input type="radio" name="type" value="Stdandard" checked> Standard | <input type="radio" name="type" value="URL"> URL 
-	  <input type="submit" name="action" value="encode">
-	  <input type="submit" name="action" value="decode">
-	  <input type="reset" value="reset">
-	 </form>
-	</body>
-</html>`
-	rdr := bytes.NewReader([]byte(f))
-	io.Copy(w, rdr)
-}
-
 func main() {
-	http.HandleFunc("/", form)
-	http.HandleFunc("/do", do)
+	http.HandleFunc("/", do)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
