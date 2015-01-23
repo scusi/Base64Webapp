@@ -57,7 +57,7 @@ func do(w http.ResponseWriter, r *http.Request) {
 			} else {
 			    result = base64.StdEncoding.EncodeToString(buf.Bytes())
 			}
-			res := Result{result, r.FormValue("type"), action}
+			res := Result{result, r.FormValue("t"), action}
 			tmpl.Execute(w, res)
 		case "decode":
             log.Printf("%s action: %s, type: %s\n", r.RemoteAddr, action, enctype)
