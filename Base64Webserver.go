@@ -1,7 +1,9 @@
 package main
 
 import("io")
+import("os")
 import("log")
+import("net")
 import("bytes")
 import("strings")
 import("net/http")
@@ -80,6 +82,7 @@ func do(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	hostPort := net.JoinHostPort("0.0.0.0", os.Getenv("PORT"))
 	http.HandleFunc("/", do)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(hostPort, nil))
 }
