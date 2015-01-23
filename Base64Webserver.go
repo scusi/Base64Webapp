@@ -1,13 +1,13 @@
 package main
 
-import("net/http")
-import("strings")
+import("io")
 import("log")
 import("bytes")
-import("encoding/base64")
-import("html/template")
-import("io")
+import("strings")
+import("net/http")
 import("io/ioutil")
+import("html/template")
+import("encoding/base64")
 
 type Result struct {
 	Data	string
@@ -23,7 +23,7 @@ const formsrc = `<html>
 	 <h1>Base64 Encoding/Decoding</h1>
 	 <form action="/do" method="POST">
 	  <textarea name="c" rows="20" cols="80">{{if .}}{{.Data}}{{end}}</textarea><br/>
-	  Type: <input type="radio" name="t" value="std" checked> Standard | <input type="radio" name="type" value="url"> URL 
+	  Base64 Type: <input type="radio" name="t" value="std" checked> Standard <input type="radio" name="type" value="url"> URL 
 	  <input type="submit" name="a" value="encode">
 	  <input type="submit" name="a" value="decode">
 	  <input type="reset" value="reset">
