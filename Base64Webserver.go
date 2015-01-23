@@ -25,7 +25,7 @@ const formsrc = `<html>
 	 <h1>Base64 Encoding/Decoding</h1>
 	 <form action="/do" method="POST">
 	  <textarea name="c" rows="20" cols="80">{{if .}}{{.Data}}{{end}}</textarea><br/>
-	  Base64 Type: <input type="radio" name="t" value="std" checked> Standard <input type="radio" name="type" value="url"> URL 
+	  Base64 Type: <input type="radio" name="type" value="url"> URL 
 	  <input type="submit" name="a" value="encode">
 	  <input type="submit" name="a" value="decode">
 	  <input type="reset" value="reset">
@@ -57,7 +57,7 @@ func do(w http.ResponseWriter, r *http.Request) {
 			} else {
 			    result = base64.StdEncoding.EncodeToString(buf.Bytes())
 			}
-			res := Result{result, r.FormValue("t"), action}
+			res := Result{result, enctype, action}
 			tmpl.Execute(w, res)
 		case "decode":
             log.Printf("%s action: %s, type: %s\n", r.RemoteAddr, action, enctype)
@@ -74,7 +74,7 @@ func do(w http.ResponseWriter, r *http.Request) {
 				log.Println(err)
 				break
 			}
-			res := Result{string(resb), r.FormValue("t"), action}
+			res := Result{string(resb), enctype, action}
 			tmpl.Execute(w, res)
 		default:
 			tmpl.Execute(w, "")
