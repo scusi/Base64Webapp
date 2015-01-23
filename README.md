@@ -19,7 +19,7 @@ or if you prefer to build a binary you can do some thing like this
     export PORT=80
     ./Base64Webserver
 
-However you choose to do it, after you are done point your browser to http://127.0.0.1, or if you have choosen another port than 80 you have to add the port like this http://127.0.0.1:<PORT>/. 
+However you choose to do it, after you are done point your browser to http://127.0.0.1, or if you have choosen another port than 80 you have to add the port to the URL. For example if you have set port 8080, go to http://127.0.0.1:8080/. 
 
 ## Use with docker
 
